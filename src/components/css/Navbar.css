@@ -1,0 +1,52 @@
+/* Navbar.css */
+.navbar {
+    background-color: #ffffff;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ddd;
+  }
+  
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+  }
+  
+  .sidebar-toggle {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 10px;
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    .sidebar-toggle {
+      display: inline-block;
+    }
+  
+    .navbar-search {
+      display: none;
+    }
+  
+    .navbar-user span {
+      display: none;
+    }
+  }
+  .openn{
+    padding-left: 230px;
+  }
+  .navbar-actions {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-user img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-left: 10px;
+  }
+  
