@@ -5,10 +5,9 @@ import Sidebar from '../components/Navbar';
 import './css/styles1.css';
 import Select from 'react-select';
 
-
 const Orders = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [Orders, setOrders] = useState([]);
+    const [orders, setOrders] = useState([]);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [showModal, setShowModal] = useState(false);
     const [currentOrders, setCurrentOrders] = useState({
@@ -20,6 +19,12 @@ const Orders = () => {
     });
     const [isEditing, setIsEditing] = useState(false);
 
+    const statusOptions = [
+        { value: 'pending', label: 'Pending' },
+        { value: 'shipped', label: 'Shipped' },
+        { value: 'delivered', label: 'Delivered' }
+    ];
+
     useEffect(() => {
         fetchOrders();
     }, []);
@@ -29,7 +34,7 @@ const Orders = () => {
             const response = await axios.get('http://localhost:5000/orders');
             setOrders(response.data);
         } catch (error) {
-            console.error('Error fetching Orders:', error);
+            console.error('Error fetching orders:', error);
         }
     };
 
@@ -59,12 +64,12 @@ const Orders = () => {
             await axios.delete(`http://localhost:5000/orders/${id}`);
             fetchOrders(); // Refresh the list after deletion
         } catch (error) {
-            console.error('Error deleting drug:', error);
+            console.error('Error deleting order:', error);
         }
     };
 
-    const handleEdit = (drug) => {
-        setCurrentOrders(drug);
+    const handleEdit = (order) => {
+        setCurrentOrders(order);
         setIsEditing(true);
         setShowModal(true);
     };
@@ -91,9 +96,10 @@ const Orders = () => {
             fetchOrders(); // Refresh the list after save
             setShowModal(false);
         } catch (error) {
-            console.error('Error saving drug:', error);
+            console.error('Error saving order:', error);
         }
     };
+
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
@@ -102,12 +108,6 @@ const Orders = () => {
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     };
-    const roleOptions = [
-        { value: 'pending', label: 'Pending' },
-        { value: 'shipped', label: 'Shipped' },
-        { value: 'delivered', label: 'Delivered' }
-        // Add more roles as needed
-    ];
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -117,25 +117,24 @@ const Orders = () => {
         });
     };
 
-    const handleRoleChange = (selectedOption) => {
+    const handleStatusChange = (selectedOption) => {
         setCurrentOrders({
             ...currentOrders,
             status: selectedOption.value,
         });
     };
 
-
     return (
         <div className="dashboard-container">
             <Navbar onToggleSidebar={handleToggleSidebar} isSidebarOpen={isSidebarOpen} isOpen={isSidebarOpen} />
             <div className="main-content">
-            <Sidebar isOpen={isSidebarOpen} />
-            <div className="content">
+                <Sidebar isOpen={isSidebarOpen} />
+                <div className="content">
                     <div className="header">
                         <h2>Orders</h2>
-                        <button className="add-button" onClick={handleAddOrders}>Add Orders</button>
+                        <button className="add-button" onClick={handleAddOrders}>Add Order</button>
                     </div>
-                    <table className="drugs-table">
+                    <table className="orders-table">
                         <thead>
                             <tr>
                                 <th onClick={() => handleSort('order_id')}>ID{sortConfig.key === 'order_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
@@ -147,16 +146,16 @@ const Orders = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {Orders.map((drug, index) => (
-                                <tr key={drug.order_id}>
-                                    <td>{drug.order_id}</td>
-                                    <td>{new Date(drug.date).toLocaleDateString()}</td>
-                                    <td>{drug.status}</td>
-                                    <td>{drug.hospital_id}</td>
-                                    <td>{drug.supplier_id}</td>
+                            {orders.map((order, index) => (
+                                <tr key={order.order_id}>
+                                    <td>{order.order_id}</td>
+                                    <td>{new Date(order.date).toLocaleDateString()}</td>
+                                    <td>{order.status}</td>
+                                    <td>{order.hospital_id}</td>
+                                    <td>{order.supplier_id}</td>
                                     <td>
-                                        <button className="edit-button" onClick={() => handleEdit(drug)}>Edit</button>
-                                        <button className="delete-button" onClick={() => handleDelete(drug.order_id)}>Delete</button>
+                                        <button className="edit-button" onClick={() => handleEdit(order)}>Edit</button>
+                                        <button className="delete-button" onClick={() => handleDelete(order.order_id)}>Delete</button>
                                     </td>
                                 </tr>
                             ))}
@@ -165,53 +164,53 @@ const Orders = () => {
                 </div>
             </div>
             {showModal && (
-    <div className="modal">
-        <div className="modal-content">
-            <h3>{isEditing ? 'Edit Orders' : 'Add Orders'}</h3>
-            <input
-                type="text"
-                name="order_id"
-                placeholder="ID"
-                value={currentOrders.order_id}
-                onChange={handleChange}
-                disabled
-            />
-            <input
-            type="date"
-            name="date"
-            placeholder="Date"
-            value={formatDate(currentOrders.date)}
-            onChange={handleChange}
-        />
-             <Select
-                name="status"
-                value={roleOptions.find(option => option.value === currentOrders.status)}
-                onChange={handleRoleChange}
-                options={roleOptions}
-                placeholder="Select Status"
-                className='dib'
-            />
-            <input
-                type="text"
-                name="hospital_id"
-                placeholder="Hospital ID"
-                value={currentOrders.hospital_id}
-                onChange={handleChange}
-            />
-            <input
-                type="text"
-                name="supplier_id"
-                placeholder="Supplier ID"
-                value={currentOrders.supplier_id}
-                onChange={handleChange}
-            />
-            <div className="modal-actions">
-                <button onClick={handleSave}>{isEditing ? 'Save Changes' : 'Add Orders'}</button>
-                <button onClick={() => setShowModal(false)}>Cancel</button>
-            </div>
-        </div>
-    </div>
-)}
+                <div className="modal">
+                    <div className="modal-content">
+                        <h3>{isEditing ? 'Edit Order' : 'Add Order'}</h3>
+                        <input
+                            type="text"
+                            name="order_id"
+                            placeholder="ID"
+                            value={currentOrders.order_id}
+                            onChange={handleChange}
+                            disabled
+                        />
+                        <input
+                            type="date"
+                            name="date"
+                            placeholder="Date"
+                            value={formatDate(currentOrders.date)}
+                            onChange={handleChange}
+                        />
+                        <Select
+                            name="status"
+                            value={statusOptions.find(option => option.value === currentOrders.status)}
+                            onChange={handleStatusChange}
+                            options={statusOptions}
+                            placeholder="Select Status"
+                            className='dib'
+                        />
+                        <input
+                            type="text"
+                            name="hospital_id"
+                            placeholder="Hospital ID"
+                            value={currentOrders.hospital_id}
+                            onChange={handleChange}
+                        />
+                        <input
+                            type="text"
+                            name="supplier_id"
+                            placeholder="Supplier ID"
+                            value={currentOrders.supplier_id}
+                            onChange={handleChange}
+                        />
+                        <div className="modal-actions">
+                            <button onClick={handleSave}>{isEditing ? 'Save Changes' : 'Add Order'}</button>
+                            <button onClick={() => setShowModal(false)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
