@@ -3,6 +3,8 @@ import axios from 'axios';
 import Navbar from '../components/Sidebar';
 import Sidebar from '../components/Navbar';
 import './css/styles1.css';
+import Select from 'react-select';
+
 
 const Orders = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -100,12 +102,28 @@ const Orders = () => {
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     };
+    const roleOptions = [
+        { value: 'pending', label: 'Pending' },
+        { value: 'shipped', label: 'Shipped' },
+        { value: 'delivered', label: 'Delivered' }
+        // Add more roles as needed
+    ];
+
     const handleChange = (e) => {
+        const { name, value } = e.target;
         setCurrentOrders({
             ...currentOrders,
-            [e.target.name]: e.target.value,
+            [name]: value,
         });
     };
+
+    const handleRoleChange = (selectedOption) => {
+        setCurrentOrders({
+            ...currentOrders,
+            status: selectedOption.value,
+        });
+    };
+
 
     return (
         <div className="dashboard-container">
@@ -165,12 +183,13 @@ const Orders = () => {
             value={formatDate(currentOrders.date)}
             onChange={handleChange}
         />
-            <input
-                type="text"
+             <Select
                 name="status"
-                placeholder="Status"
-                value={currentOrders.status}
-                onChange={handleChange}
+                value={roleOptions.find(option => option.value === currentOrders.status)}
+                onChange={handleRoleChange}
+                options={roleOptions}
+                placeholder="Select Status"
+                className='dib'
             />
             <input
                 type="text"
