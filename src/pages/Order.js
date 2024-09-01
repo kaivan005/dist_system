@@ -10,11 +10,11 @@ const Orders = () => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [showModal, setShowModal] = useState(false);
     const [currentOrders, setCurrentOrders] = useState({
-        o_id: '',
+        order_id: '',
         date: '',
         status: '',
-        h_id: '',
-        s_id: ''
+        hospital_id: '',
+        supplier_id: ''
     });
     const [isEditing, setIsEditing] = useState(false);
 
@@ -24,7 +24,7 @@ const Orders = () => {
 
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/Orders');
+            const response = await axios.get('http://localhost:5000/orders');
             setOrders(response.data);
         } catch (error) {
             console.error('Error fetching Orders:', error);
@@ -54,7 +54,7 @@ const Orders = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/Orders/${id}`);
+            await axios.delete(`http://localhost:5000/orders/${id}`);
             fetchOrders(); // Refresh the list after deletion
         } catch (error) {
             console.error('Error deleting drug:', error);
@@ -69,11 +69,11 @@ const Orders = () => {
 
     const handleAddOrders = () => {
         setCurrentOrders({
-            o_id: '',
+            order_id: '',
             date: '',
             status: '',
-            h_id: '',
-            s_id: ''
+            hospital_id: '',
+            supplier_id: ''
         });
         setIsEditing(false);
         setShowModal(true);
@@ -82,9 +82,9 @@ const Orders = () => {
     const handleSave = async () => {
         try {
             if (isEditing) {
-                await axios.put(`http://localhost:5000/Orders/${currentOrders.id}`, currentOrders);
+                await axios.put(`http://localhost:5000/orders/${currentOrders.order_id}`, currentOrders);
             } else {
-                await axios.post('http://localhost:5000/Orders', currentOrders);
+                await axios.post('http://localhost:5000/orders', currentOrders);
             }
             fetchOrders(); // Refresh the list after save
             setShowModal(false);
@@ -120,24 +120,25 @@ const Orders = () => {
                     <table className="drugs-table">
                         <thead>
                             <tr>
-                                <th onClick={() => handleSort('o_id')}>ID{sortConfig.key === 'o_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('order_id')}>ID{sortConfig.key === 'order_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('date')}>Date{sortConfig.key === 'date' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('status')}>Status{sortConfig.key === 'status' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('h_id')}>Hospital ID{sortConfig.key === 'h_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('s_id')}>Supplier ID{sortConfig.key === 's_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('hospital_id')}>Hospital ID{sortConfig.key === 'hospital_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('supplier_id')}>Supplier ID{sortConfig.key === 'supplier_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {Orders.map((drug, index) => (
-                                <tr key={drug.o_id}>
+                                <tr key={drug.order_id}>
+                                    <td>{drug.order_id}</td>
                                     <td>{new Date(drug.date).toLocaleDateString()}</td>
                                     <td>{drug.status}</td>
-                                    <td>{drug.h_id}</td>
-                                    <td>{drug.s_id}</td>
+                                    <td>{drug.hospital_id}</td>
+                                    <td>{drug.supplier_id}</td>
                                     <td>
                                         <button className="edit-button" onClick={() => handleEdit(drug)}>Edit</button>
-                                        <button className="delete-button" onClick={() => handleDelete(drug.id)}>Delete</button>
+                                        <button className="delete-button" onClick={() => handleDelete(drug.order_id)}>Delete</button>
                                     </td>
                                 </tr>
                             ))}
@@ -151,10 +152,11 @@ const Orders = () => {
             <h3>{isEditing ? 'Edit Orders' : 'Add Orders'}</h3>
             <input
                 type="text"
-                name="o_id"
+                name="order_id"
                 placeholder="ID"
-                value={currentOrders.o_id}
+                value={currentOrders.order_id}
                 onChange={handleChange}
+                disabled
             />
             <input
             type="date"
@@ -172,16 +174,16 @@ const Orders = () => {
             />
             <input
                 type="text"
-                name="h_id"
+                name="hospital_id"
                 placeholder="Hospital ID"
-                value={currentOrders.h_id}
+                value={currentOrders.hospital_id}
                 onChange={handleChange}
             />
             <input
                 type="text"
-                name="s_id"
+                name="supplier_id"
                 placeholder="Supplier ID"
-                value={currentOrders.s_id}
+                value={currentOrders.supplier_id}
                 onChange={handleChange}
             />
             <div className="modal-actions">

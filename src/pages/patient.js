@@ -10,12 +10,11 @@ const Patient = () => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [showModal, setShowModal] = useState(false);
     const [currentpatient, setCurrentpatient] = useState({
-        u_id: '',
-        name: '',
-        email: '',
-        password: '',
-        role: '',
-        h_id: ''
+        patient_id: '',
+        drug_id: '',
+        patient_name: '',
+        drug_qty: '',
+        exp_date: ''
     });
     const [isEditing, setIsEditing] = useState(false);
 
@@ -25,7 +24,7 @@ const Patient = () => {
 
     const fetchPatient = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/patient');
+            const response = await axios.get('http://localhost:5000/patients');
             setpatient(response.data);
         } catch (error) {
             console.error('Error fetching patient:', error);
@@ -55,7 +54,7 @@ const Patient = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/patient/${id}`);
+            await axios.delete(`http://localhost:5000/patients/${id}`);
             fetchPatient(); // Refresh the list after deletion
         } catch (error) {
             console.error('Error deleting drug:', error);
@@ -70,12 +69,11 @@ const Patient = () => {
 
     const handleAddpatient = () => {
         setCurrentpatient({
-            u_id: '',
-            name: '',
-            email: '',
-            password: '',
-            role: '',
-            h_id: ''
+            patient_id: '',
+            drug_id: '',
+            patient_name: '',
+            drug_qty: '',
+            exp_date: ''
         });
         setIsEditing(false);
         setShowModal(true);
@@ -84,9 +82,9 @@ const Patient = () => {
     const handleSave = async () => {
         try {
             if (isEditing) {
-                await axios.put(`http://localhost:5000/patient/${currentpatient.id}`, currentpatient);
+                await axios.put(`http://localhost:5000/patients/${currentpatient.patient_id}`, currentpatient);
             } else {
-                await axios.post('http://localhost:5000/patient', currentpatient);
+                await axios.post('http://localhost:5000/patients', currentpatient);
             }
             fetchPatient(); // Refresh the list after save
             setShowModal(false);
@@ -94,7 +92,14 @@ const Patient = () => {
             console.error('Error saving Patient:', error);
         }
     };
-
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
     const handleChange = (e) => {
         setCurrentpatient({
             ...currentpatient,
@@ -115,22 +120,25 @@ const Patient = () => {
                     <table className="drugs-table">
                         <thead>
                             <tr>
-                                <th onClick={() => handleSort('name')}>Name{sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('drug_name')}>Drug Name{sortConfig.key === 'drug_name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('qty')}>Quantity{sortConfig.key === 'qty' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('patient_id')}>ID{sortConfig.key === 'patient_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('drug_id')}>Drug ID{sortConfig.key === 'drug_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('patient_name')}>Patient Name{sortConfig.key === 'patient_name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('drug_qty')}>Quantity{sortConfig.key === 'drug_qty' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('exp_date')}>Expiry Date{sortConfig.key === 'exp_date' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {patient.map((drug, index) => (
-                                <tr key={drug.name}>
-                                    <td>{drug.drug_name}</td>
-                                    <td>{drug.qty}</td>
-                                    <td>{drug.exp_date}</td>
+                                <tr key={drug.patient_id}>
+                                    <td>{drug.patient_id}</td>
+                                    <td>{drug.drug_id}</td>
+                                    <td>{drug.patient_name}</td>
+                                    <td>{drug.drug_qty}</td>
+                                    <td>{new Date(drug.exp_date).toLocaleDateString()}</td>
                                     <td>
                                         <button className="edit-button" onClick={() => handleEdit(drug)}>Edit</button>
-                                        <button className="delete-button" onClick={() => handleDelete(drug.id)}>Delete</button>
+                                        <button className="delete-button" onClick={() => handleDelete(drug.patient_id)}>Delete</button>
                                     </td>
                                 </tr>
                             ))}
@@ -144,30 +152,30 @@ const Patient = () => {
             <h3>{isEditing ? 'Edit patient' : 'Add patient'}</h3>
             <input
                 type="text"
-                name="name"
+                name="patient_name"
                 placeholder="Name"
-                value={currentpatient.name}
+                value={currentpatient.patient_name}
                 onChange={handleChange}
             />
             <input
                 type="text"
-                name="drug_name"
-                placeholder="Drug Name"
-                value={currentpatient.drug_name}
+                name="drug_id"
+                placeholder="Drug ID"
+                value={currentpatient.drug_id}
                 onChange={handleChange}
             />
             <input
                 type="number"
-                name="qty"
+                name="drug_qty"
                 placeholder="Quantity"
-                value={currentpatient.qty}
+                value={currentpatient.drug_qty}
                 onChange={handleChange}
             />
             <input
-                type="text"
+                type="date"
                 name="exp_date"
                 placeholder="Expiry Date"
-                value={currentpatient.exp_date}
+                value={formatDate(currentpatient.exp_date)}
                 onChange={handleChange}
             />
             <div className="modal-actions">

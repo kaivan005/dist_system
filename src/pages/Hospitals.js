@@ -10,7 +10,7 @@ const Hospitals = () => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [showModal, setShowModal] = useState(false);
     const [currentHospital, setCurrentHospital] = useState({
-        h_id: '',
+        hospital_id: '',
         name: '',
         location: '',
         conatact_details: ''
@@ -23,7 +23,7 @@ const Hospitals = () => {
 
     const fetchHospitals = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/Hospital');
+            const response = await axios.get('http://localhost:5000/hospital');
             setHospital(response.data);
         } catch (error) {
             console.error('Error fetching Hospital:', error);
@@ -53,7 +53,7 @@ const Hospitals = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/Hospital/${id}`);
+            await axios.delete(`http://localhost:5000/hospital/${id}`);
             fetchHospitals(); // Refresh the list after deletion
         } catch (error) {
             console.error('Error deleting Hospital:', error);
@@ -68,7 +68,7 @@ const Hospitals = () => {
 
     const handleAddHospital = () => {
         setCurrentHospital({
-            h_id: '',
+            hospital_id: '',
             name: '',
             location: '',
             conatact_details: ''
@@ -80,9 +80,9 @@ const Hospitals = () => {
     const handleSave = async () => {
         try {
             if (isEditing) {
-                await axios.put(`http://localhost:5000/Hospital/${currentHospital.id}`, currentHospital);
+                await axios.put(`http://localhost:5000/hospital/${currentHospital.hospital_id}`, currentHospital);
             } else {
-                await axios.post('http://localhost:5000/Hospital', currentHospital);
+                await axios.post('http://localhost:5000/hospital', currentHospital);
             }
             fetchHospitals(); // Refresh the list after save
             setShowModal(false);
@@ -111,7 +111,7 @@ const Hospitals = () => {
                     <table className="drugs-table">
                         <thead>
                             <tr>
-                                <th onClick={() => handleSort('h_id')}>ID {sortConfig.key === 'h_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('hospital_id')}>ID {sortConfig.key === 'hospital_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('name')}>Name{sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('location')}>Location {sortConfig.key === 'location' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('contact_details')}>Contact Details{sortConfig.key === 'contact_details' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
@@ -120,13 +120,14 @@ const Hospitals = () => {
                         </thead>
                         <tbody>
                             {Hospital.map((Hospital, index) => (
-                                <tr key={Hospital.h_id}>
+                                <tr key={Hospital.hospital_id}>
+                                    <td>{Hospital.hospital_id}</td>
                                     <td>{Hospital.name}</td>
                                     <td>{Hospital.location}</td>
                                     <td>{Hospital.contact_details}</td>
                                     <td>
                                         <button className="edit-button" onClick={() => handleEdit(Hospital)}>Edit</button>
-                                        <button className="delete-button" onClick={() => handleDelete(Hospital.id)}>Delete</button>
+                                        <button className="delete-button" onClick={() => handleDelete(Hospital.hospital_id)}>Delete</button>
                                     </td>
                                 </tr>
                             ))}

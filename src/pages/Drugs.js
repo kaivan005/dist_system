@@ -10,13 +10,13 @@ const Drugs = () => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [showModal, setShowModal] = useState(false);
     const [currentDrug, setCurrentDrug] = useState({
-        d_id: '',
+        drug_id: '',
         name: '',
-        exp_date: '',
-        quantity_available: '',
-        low_stock_amount: '',
-        h_id: '',
-        s_id: ''
+        expiry_date: '',
+        qty_available: '',
+        low_stock_threshold: '',
+        hospital_id: '',
+        supplier_id: ''
     });
     const [isEditing, setIsEditing] = useState(false);
 
@@ -56,7 +56,7 @@ const Drugs = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/drugs/${id}`);
+            await axios.delete(`http://localhost:5000/drug/${id}`);
             fetchDrugs(); // Refresh the list after deletion
         } catch (error) {
             console.error('Error deleting drug:', error);
@@ -71,13 +71,13 @@ const Drugs = () => {
 
     const handleAddMedicine = () => {
         setCurrentDrug({
-            d_id: '',
+            drug_id: '',
             name: '',
-            exp_date: '',
-            quantity_available: '',
-            low_stock_amount: '',
-            h_id: '',
-            s_id: ''
+            expiry_date: '',
+            qty_available: '',
+            low_stock_threshold: '',
+            hospital_id: '',
+            supplier_id: ''
         });
         setIsEditing(false);
         setShowModal(true);
@@ -86,11 +86,11 @@ const Drugs = () => {
     const handleSave = async () => {
         try {
             if (isEditing) {
-                await axios.put(`http://localhost:5000/drugs/${currentDrug.id}`, currentDrug);
+                await axios.put(`http://localhost:5000/drug/${currentDrug.drug_id}`, currentDrug);
             } else {
                 await axios.post('http://localhost:5000/drugs', currentDrug);
             }
-            fetchDrugs(); // Refresh the list after save
+            fetchDrugs();
             setShowModal(false);
         } catch (error) {
             console.error('Error saving drug:', error);
@@ -124,29 +124,29 @@ const Drugs = () => {
                     <table className="drugs-table">
                         <thead>
                             <tr>
-                                <th onClick={() => handleSort('d_id')}>ID {sortConfig.key === 'd_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('drug_id')}>ID {sortConfig.key === 'drug_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('name')}>Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('exp_date')}>Expiry Date {sortConfig.key === 'exp_date' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('quantity_available')}>Quantity Available{sortConfig.key === 'quantity_available' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('low_stock_amount')}>Low stock Threshold{sortConfig.key === 'low_stock_amount' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('h_id')}>Hospital ID {sortConfig.key === 'h_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('s_id')}>Supplier ID {sortConfig.key === 's_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('expiry_date')}>Expiry Date {sortConfig.key === 'expiry_date' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('qty_available')}>Quantity Available{sortConfig.key === 'qty_available' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('low_stock_threshold')}>Low stock Threshold{sortConfig.key === 'low_stock_threshold' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('hospital_id')}>Hospital ID {sortConfig.key === 'hospital_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('supplier_id')}>Supplier ID {sortConfig.key === 'supplier_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {drugs.map((drug, index) => (
                                 <tr key={drug.id}>
-                                    <td>{drug.d_id}</td>
+                                    <td>{drug.drug_id}</td>
                                     <td>{drug.name}</td>
-                                    <td>{new Date(drug.exp_date).toLocaleDateString()}</td>
-                                    <td>{drug.quantity_available}</td>
-                                    <td>{drug.low_stock_amount}</td>
-                                    <td>{drug.h_id}</td>
-                                    <td>{drug.s_id}</td>
+                                    <td>{new Date(drug.expiry_date).toLocaleDateString()}</td>
+                                    <td>{drug.qty_available}</td>
+                                    <td>{drug.low_stock_threshold}</td>
+                                    <td>{drug.hospital_id}</td>
+                                    <td>{drug.supplier_id}</td>
                                     <td>
                                         <button className="edit-button" onClick={() => handleEdit(drug)}>Edit</button>
-                                        <button className="delete-button" onClick={() => handleDelete(drug.id)}>Delete</button>
+                                        <button className="delete-button" onClick={() => handleDelete(drug.drug_id)}>Delete</button>
                                     </td>
                                 </tr>
                             ))}
@@ -160,13 +160,14 @@ const Drugs = () => {
             <h3>{isEditing ? 'Edit Medicine' : 'Add Medicine'}</h3>
             <input
                 type="text"
-                name="d_id"
+                name="drug_id"
                 placeholder="ID"
-                value={currentDrug.d_id}
+                value={currentDrug.drug_id}
                 onChange={handleChange}
+                disabled
             />
             <input
-                type="number"
+                type="text"
                 name="name"
                 placeholder="Name"
                 value={currentDrug.name}
@@ -174,38 +175,38 @@ const Drugs = () => {
             />
                 <input
                     type="date"
-                    name="exp_date"
+                    name="expiry_date"
                     placeholder="Expiry Date"
-                    value={formatDate(currentDrug.exp_date)}
+                    value={formatDate(currentDrug.expiry_date)}
                     onChange={handleChange}
                 />
             <input
                 type="number"
-                name="quantity_available"
+                name="qty_available"
                 placeholder="Quantity Available"
-                value={currentDrug.quantity_available}
+                value={currentDrug.qty_available}
                 onChange={handleChange}
             />
 
             <input
                 type="text"
-                name="low_stock_amount"
+                name="low_stock_threshold"
                 placeholder="Low Stock Amount"
-                value={currentDrug.low_stock_amount}
+                value={currentDrug.low_stock_threshold}
                 onChange={handleChange}
             />
             <input
                 type="text"
-                name="h_id"
+                name="hospital_id"
                 placeholder="Hospital ID"
-                value={currentDrug.h_id}
+                value={currentDrug.hospital_id}
                 onChange={handleChange}
             />
             <input
                 type="text"
-                name="s_id"
+                name="supplier_id"
                 placeholder="Supplier ID"
-                value={currentDrug.s_id}
+                value={currentDrug.supplier_id}
                 onChange={handleChange}
             />
             <div className="modal-actions">

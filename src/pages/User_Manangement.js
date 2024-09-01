@@ -10,12 +10,12 @@ const Users = () => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [showModal, setShowModal] = useState(false);
     const [currentUser, setCurrentUser] = useState({
-        u_id: '',
+        user_id: '',
         name: '',
         email: '',
         password: '',
         role: '',
-        h_id: ''
+        hospital_id: ''
     });
     const [isEditing, setIsEditing] = useState(false);
 
@@ -70,12 +70,12 @@ const Users = () => {
 
     const handleAddUser = () => {
         setCurrentUser({
-            u_id: '',
+            user_id: '',
             name: '',
             email: '',
             password: '',
             role: '',
-            h_id: ''
+            hospital_id: ''
         });
         setIsEditing(false);
         setShowModal(true);
@@ -84,7 +84,7 @@ const Users = () => {
     const handleSave = async () => {
         try {
             if (isEditing) {
-                await axios.put(`http://localhost:5000/user/${currentUser.id}`, currentUser);
+                await axios.put(`http://localhost:5000/user/${currentUser.user_id}`, currentUser);
             } else {
                 await axios.post('http://localhost:5000/user', currentUser);
             }
@@ -115,26 +115,27 @@ const Users = () => {
                     <table className="drugs-table">
                         <thead>
                             <tr>
-                                <th onClick={() => handleSort('u_id')}>ID{sortConfig.key === 'u_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('user_id')}>ID{sortConfig.key === 'user_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('name')}>Name{sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('e_mail')}>E-Mail{sortConfig.key === 'e_mail' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('password')}>Password{sortConfig.key === 'password' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('role')}>Role{sortConfig.key === 'role' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('h_id')}>H_ID{sortConfig.key === 'h_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('hospital_id')}>Hospital ID{sortConfig.key === 'hospital_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {user.map((drug, index) => (
-                                <tr key={drug.u_id}>
+                                <tr key={drug.id}>
+                                    <td>{drug.user_id}</td>
                                     <td>{drug.name}</td>
                                     <td>{drug.email}</td>
                                     <td>{drug.password}</td>
                                     <td>{drug.role}</td>
-                                    <td>{drug.h_id}</td>
+                                    <td>{drug.hospital_id}</td>
                                     <td>
                                         <button className="edit-button" onClick={() => handleEdit(drug)}>Edit</button>
-                                        <button className="delete-button" onClick={() => handleDelete(drug.id)}>Delete</button>
+                                        <button className="delete-button" onClick={() => handleDelete(drug.user_id)}>Delete</button>
                                     </td>
                                 </tr>
                             ))}
@@ -176,9 +177,9 @@ const Users = () => {
             />
             <input
                 type="text"
-                name="h_id"
+                name="hospital_id"
                 placeholder="Hospital ID"
-                value={currentUser.h_id}
+                value={currentUser.hospital_id}
                 onChange={handleChange}
             />
             <div className="modal-actions">

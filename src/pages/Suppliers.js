@@ -10,7 +10,7 @@ const Supplier = () => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [showModal, setShowModal] = useState(false);
     const [currentUser, setCurrentSupplier] = useState({
-        s_id: '',
+        supplier_id: '',
         name: '',
         contact_details: ''
     });
@@ -67,7 +67,7 @@ const Supplier = () => {
 
     const handleAddSupplier = () => {
         setCurrentSupplier({
-            s_id: '',
+            supplier_id: '',
             name: '',
             contact_details: ''
         });
@@ -78,7 +78,7 @@ const Supplier = () => {
     const handleSave = async () => {
         try {
             if (isEditing) {
-                await axios.put(`http://localhost:5000/supplier/${currentUser.id}`, currentUser);
+                await axios.put(`http://localhost:5000/supplier/${currentUser.supplier_id}`, currentUser);
             } else {
                 await axios.post('http://localhost:5000/supplier', currentUser);
             }
@@ -109,7 +109,7 @@ const Supplier = () => {
                     <table className="drugs-table">
                         <thead>
                             <tr>
-                                <th onClick={() => handleSort('s_id')}>ID{sortConfig.key === 's_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('supplier_id')}>ID{sortConfig.key === 'supplier_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('name')}>Name{sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('contact_details')}>Contact Details{sortConfig.key === 'contact_details' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th>Actions</th>
@@ -117,12 +117,13 @@ const Supplier = () => {
                         </thead>
                         <tbody>
                             {user.map((drug, index) => (
-                                <tr key={drug.s_id}>
+                                <tr key={drug.supplier_id}>
+                                    <td>{drug.supplier_id}</td>
                                     <td>{drug.name}</td>
                                     <td>{drug.contact_details}</td>
                                     <td>
                                         <button className="edit-button" onClick={() => handleEdit(drug)}>Edit</button>
-                                        <button className="delete-button" onClick={() => handleDelete(drug.id)}>Delete</button>
+                                        <button className="delete-button" onClick={() => handleDelete(drug.supplier_id)}>Delete</button>
                                     </td>
                                 </tr>
                             ))}
@@ -142,7 +143,7 @@ const Supplier = () => {
                 onChange={handleChange}
             />
             <input
-                type="number"
+                type="text"
                 name="contact_details"
                 placeholder="Contact Details"
                 value={currentUser.contact_details}
