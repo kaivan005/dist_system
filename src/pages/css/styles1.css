@@ -113,6 +113,13 @@
     border-radius: 4px;
     border: 1px solid #ccc;
 }
+.modal-content .drugs1 {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
 
 .modal-content .dib {
     width: 100%;

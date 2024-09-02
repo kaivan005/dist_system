@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Navbar from '../components/Sidebar';
-import Sidebar from '../components/Navbar';
+import Navbar from '../components/Navbar'; // Corrected import
+import Sidebar from '../components/Sidebar'; // Corrected import
 import './css/styles1.css';
 import Select from 'react-select';
+import ReactSelect from 'react-select';
+
 
 const Orders = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [orders, setOrders] = useState([]);
+    const [hospitals, setHospitals] = useState([]);
+    const [suppliers, setSuppliers] = useState([]);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [showModal, setShowModal] = useState(false);
     const [currentOrders, setCurrentOrders] = useState({
@@ -26,15 +30,57 @@ const Orders = () => {
     ];
 
     useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/orders');
+                const drugsWithHospitalNames = response.data.map(drug => {
+                    const hospital = hospitals.find(hospital => hospital.hospital_id === drug.hospital_id);
+                    const supplier = suppliers.find(supplier => supplier.supplier_id === drug.supplier_id);
+                    return { ...drug, hospital_name: hospital ? hospital.name : 'Unknown Hospital', supplier_name: supplier ? supplier.name : 'Unknown Supplier' };
+                });
+                setOrders(drugsWithHospitalNames);
+            } catch (error) {
+                console.error('Error fetching drugs:', error);
+            }
+        };
+    
         fetchOrders();
-    }, []);
+        fetchHospitals();
+        fetchSuppliers();
+    }, [hospitals, suppliers]);
+    
+    
+    
 
     const fetchOrders = async () => {
         try {
             const response = await axios.get('http://localhost:5000/orders');
-            setOrders(response.data);
+            const drugsWithHospitalNames = response.data.map(drug => {
+                const hospital = hospitals.find(hospital => hospital.hospital_id === drug.hospital_id);
+                const supplier = suppliers.find(supplier => supplier.supplier_id === drug.supplier_id);
+                return { ...drug, hospital_name: hospital ? hospital.name : 'Unknown Hospital', supplier_name: supplier ? supplier.name : 'Unknown Supplier' };
+            });
+            setOrders(drugsWithHospitalNames);
         } catch (error) {
-            console.error('Error fetching orders:', error);
+            console.error('Error fetching drugs:', error);
+        }
+    };
+
+    const fetchHospitals = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/hospital'); // Ensure this endpoint returns the correct data
+            setHospitals(response.data);
+        } catch (error) {
+            console.error('Error fetching hospitals:', error);
+        }
+    };
+
+    const fetchSuppliers = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/supplier'); // Ensure this endpoint returns the correct data
+            setSuppliers(response.data);
+        } catch (error) {
+            console.error('Error fetching suppliers:', error);
         }
     };
 
@@ -124,41 +170,73 @@ const Orders = () => {
         });
     };
 
+    // const handleHospitalChange = (selectedOption) => {
+    //     setCurrentOrders({
+    //         ...currentOrders,
+    //         hospital_id: selectedOption.value,
+    //     });
+    // };
+
+    // const handleSupplierChange = (selectedOption) => {
+    //     setCurrentOrders({
+    //         ...currentOrders,
+    //         supplier_id: selectedOption.value,
+    //     });
+    // };
+    const handleSelectChange = (selectedOption, actionMeta) => {
+        setCurrentOrders({
+            ...currentOrders,
+            [actionMeta.name]: selectedOption ? selectedOption.value : ''
+        });
+    };
+
+    // Define mapped options outside of JSX for clarity and reusability
+    const hospitalOptions = hospitals.map(hospital => ({
+        value: hospital.hospital_id, // Ensure 'hospital_id' is the correct key
+        label: hospital.name
+    }));
+
+    const supplierOptions = suppliers.map(supplier => ({
+        value: supplier.supplier_id, // Ensure 'supplier_id' is the correct key
+        label: supplier.name
+    }));
     return (
         <div className="dashboard-container">
-            <Navbar onToggleSidebar={handleToggleSidebar} isSidebarOpen={isSidebarOpen} isOpen={isSidebarOpen} />
-            <div className="main-content">
                 <Sidebar isOpen={isSidebarOpen} />
+            <div className="main-content">
+            <Navbar onToggleSidebar={handleToggleSidebar} isSidebarOpen={isSidebarOpen} />
                 <div className="content">
                     <div className="header">
                         <h2>Orders</h2>
                         <button className="add-button" onClick={handleAddOrders}>Add Order</button>
                     </div>
-                    <table className="orders-table">
+                    <table className="drugs-table">
                         <thead>
                             <tr>
                                 <th onClick={() => handleSort('order_id')}>ID{sortConfig.key === 'order_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('date')}>Date{sortConfig.key === 'date' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th onClick={() => handleSort('status')}>Status{sortConfig.key === 'status' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('hospital_id')}>Hospital ID{sortConfig.key === 'hospital_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
-                                <th onClick={() => handleSort('supplier_id')}>Supplier ID{sortConfig.key === 'supplier_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('hospital_id')}>Hospital{sortConfig.key === 'hospital_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
+                                <th onClick={() => handleSort('supplier_id')}>Supplier{sortConfig.key === 'supplier_id' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {orders.map((order, index) => (
-                                <tr key={order.order_id}>
-                                    <td>{order.order_id}</td>
-                                    <td>{new Date(order.date).toLocaleDateString()}</td>
-                                    <td>{order.status}</td>
-                                    <td>{order.hospital_id}</td>
-                                    <td>{order.supplier_id}</td>
-                                    <td>
-                                        <button className="edit-button" onClick={() => handleEdit(order)}>Edit</button>
-                                        <button className="delete-button" onClick={() => handleDelete(order.order_id)}>Delete</button>
-                                    </td>
-                                </tr>
-                            ))}
+                            {orders.map((order) => {
+                                return (
+                                    <tr key={order.order_id}>
+                                        <td>{order.order_id}</td>
+                                        <td>{new Date(order.date).toLocaleDateString()}</td>
+                                        <td>{order.status}</td>
+                                        <td>{order.hospital_name}</td>
+                                        <td>{order.supplier_name}</td>
+                                        <td>
+                                            <button className="edit-button" onClick={() => handleEdit(order)}>Edit</button>
+                                            <button className="delete-button" onClick={() => handleDelete(order.order_id)}>Delete</button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -190,20 +268,24 @@ const Orders = () => {
                             placeholder="Select Status"
                             className='dib'
                         />
-                        <input
-                            type="text"
+                       <ReactSelect
                             name="hospital_id"
-                            placeholder="Hospital ID"
-                            value={currentOrders.hospital_id}
-                            onChange={handleChange}
+                            value={hospitalOptions.find(option => option.value === currentOrders.hospital_id) || null}
+                            onChange={handleSelectChange}
+                            options={hospitalOptions}
+                            placeholder="Select Hospital"
+                            className='dib'
                         />
-                        <input
-                            type="text"
+                        <ReactSelect
                             name="supplier_id"
-                            placeholder="Supplier ID"
-                            value={currentOrders.supplier_id}
-                            onChange={handleChange}
+                            value={supplierOptions.find(option => option.value === currentOrders.supplier_id) || null}
+                            onChange={handleSelectChange}
+                            options={supplierOptions}
+                            placeholder="Select Supplier"
+                            className='dib'
                         />
+
+
                         <div className="modal-actions">
                             <button onClick={handleSave}>{isEditing ? 'Save Changes' : 'Add Order'}</button>
                             <button onClick={() => setShowModal(false)}>Cancel</button>
